@@ -22,75 +22,116 @@ const (
 
 // MultipartConfig controls chunked transfers.
 type MultipartConfig struct {
-	PartSize         int64
-	Concurrency      int
-	Threshold        int64
+	// PartSize is the upload part size in bytes.
+	PartSize int64
+	// Concurrency is the number of parallel part uploads.
+	Concurrency int
+	// Threshold is the file size above which multipart upload is used.
+	Threshold int64
+	// DownloadPartSize is the chunk size for ranged downloads.
 	DownloadPartSize int64
 }
 
 // RetryConfig controls startup connectivity retry.
 type RetryConfig struct {
-	MaxAttempts  int
+	// MaxAttempts is the total number of connection attempts.
+	MaxAttempts int
+	// InitialDelay is the base delay before the first retry.
 	InitialDelay time.Duration
-	MaxDelay     time.Duration
-	Multiplier   float64
+	// MaxDelay caps exponential backoff delay.
+	MaxDelay time.Duration
+	// Multiplier scales delay after each failed attempt.
+	Multiplier float64
 }
 
 // Config holds provider credentials and tuning.
 type Config struct {
+	// Provider selects the active storage backend.
 	Provider ProviderSettings
-	Aliyun   AliyunConfig
-	Tencent  COSConfig
-	Wechat   COSConfig
-	AWS      AWSConfig
-	Azure    AzureConfig
+	// Aliyun holds Aliyun OSS credentials when Provider is aliyun.
+	Aliyun AliyunConfig
+	// Tencent holds Tencent COS credentials when Provider is tencent.
+	Tencent COSConfig
+	// Wechat holds WeChat COS credentials when Provider is wechat.
+	Wechat COSConfig
+	// AWS holds Amazon S3 credentials when Provider is aws.
+	AWS AWSConfig
+	// Azure holds Azure Blob credentials when Provider is azure.
+	Azure AzureConfig
+	// Multipart tunes chunked upload/download behavior.
 	Multipart MultipartConfig
-	Retry    RetryConfig
+	// Retry controls startup connectivity retry.
+	Retry RetryConfig
 }
 
 // ProviderSettings selects active backend.
 type ProviderSettings struct {
+	// Name is one of ProviderAliyun, ProviderTencent, ProviderWechat, ProviderAWS, ProviderAzure.
 	Name string
 }
 
 // AliyunConfig is Aliyun OSS settings.
 type AliyunConfig struct {
-	Endpoint        string
-	AccessKeyID     string
+	// Endpoint is the OSS endpoint URL.
+	Endpoint string
+	// AccessKeyID is the Aliyun access key ID.
+	AccessKeyID string
+	// AccessKeySecret is the Aliyun access key secret.
 	AccessKeySecret string
-	Bucket          string
-	CDNHost         string
+	// Bucket is the target OSS bucket name.
+	Bucket string
+	// CDNHost is the optional CDN base URL for public object URLs.
+	CDNHost string
 }
 
 // COSConfig is Tencent/WeChat COS settings.
 type COSConfig struct {
-	Region          string
-	SecretID        string
-	SecretKey       string
-	Bucket          string
-	AppID           string
-	CDNHost         string
-	BaseURL         string
+	// Region is the COS region (e.g. ap-shanghai).
+	Region string
+	// SecretID is the Tencent Cloud secret ID.
+	SecretID string
+	// SecretKey is the Tencent Cloud secret key.
+	SecretKey string
+	// Bucket is the bucket name without app ID suffix.
+	Bucket string
+	// AppID is the Tencent Cloud app ID appended to the bucket.
+	AppID string
+	// CDNHost is the optional CDN base URL for public object URLs.
+	CDNHost string
+	// BaseURL is an optional custom API base URL.
+	BaseURL string
 }
 
 // AWSConfig is Amazon S3 settings.
 type AWSConfig struct {
-	Region          string
-	AccessKeyID     string
+	// Region is the AWS region (e.g. us-east-1).
+	Region string
+	// AccessKeyID is the AWS access key ID.
+	AccessKeyID string
+	// SecretAccessKey is the AWS secret access key.
 	SecretAccessKey string
-	SessionToken    string
-	Bucket          string
-	Endpoint        string
-	CDNHost         string
+	// SessionToken is the optional STS session token.
+	SessionToken string
+	// Bucket is the S3 bucket name.
+	Bucket string
+	// Endpoint is an optional custom S3-compatible endpoint.
+	Endpoint string
+	// CDNHost is the optional CDN base URL for public object URLs.
+	CDNHost string
 }
 
 // AzureConfig is Azure Blob settings.
 type AzureConfig struct {
-	AccountName   string
-	AccountKey    string
-	Container     string
-	Endpoint      string
-	CDNHost       string
+	// AccountName is the storage account name.
+	AccountName string
+	// AccountKey is the storage account access key.
+	AccountKey string
+	// Container is the blob container name.
+	Container string
+	// Endpoint is an optional custom blob endpoint.
+	Endpoint string
+	// CDNHost is the optional CDN base URL for public object URLs.
+	CDNHost string
 }
 
 // ConfigDefault returns tuning defaults (provider block must still be set).
