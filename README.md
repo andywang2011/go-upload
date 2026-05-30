@@ -56,6 +56,34 @@ _ = u.Upload(ctx, path, reader)
 url := u.CdnUrl(path)
 ```
 
+## Client-side upload (STS)
+
+For browser or mini program direct upload, use subpackages that issue **temporary credentials** (server-side upload above uses long-lived keys):
+
+| Subpackage | Cloud | Use case |
+|------------|-------|----------|
+| `coscred` | Tencent COS | `GetCredential(ctx, uploadPath)` → tmp keys + session token |
+| `osscred` | Aliyun OSS | `GetPostPolicy(ctx, uploadPath, expireSec)` → post policy + signature |
+
+```go
+import (
+    "github.com/andywang2011/go-upload/coscred"
+    "github.com/andywang2011/go-upload/osscred"
+)
+
+cosClient, _ := coscred.NewClient(coscred.Config{
+    AppID: "...", SecretID: "...", SecretKey: "...", Bucket: "...", Region: "ap-shanghai",
+})
+cred, _ := cosClient.GetCredential(ctx, "uploads/user/1/*")
+
+ossClient, _ := osscred.NewClient(osscred.Config{
+    AccessKeyID: "...", AccessKeySecret: "...", RoleARN: "acs:ram::...:role/upload",
+})
+policy, _ := ossClient.GetPostPolicy(ctx, "uploads/file.jpg", 900)
+```
+
+Config is injected in the application layer (no viper inside these packages). Same bucket/region keys as server-side `upload` config can be shared at the wire layer.
+
 ## Production
 
 - One `Storage` client per process; reuse SDK connections.
