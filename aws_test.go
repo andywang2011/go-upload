@@ -13,7 +13,6 @@ import (
 )
 
 type mockAWS struct {
-	bucket  string
 	objects map[string][]byte
 }
 
